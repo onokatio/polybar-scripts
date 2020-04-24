@@ -16,11 +16,11 @@ print_bit() {
     if [ "$1" -eq 0 ] || [ "$1" -lt 10 ]; then
         bit="0 B"
     elif [ "$1" -lt 100 ]; then
-        bit="$(echo "scale=0;$1*8" | bc -l ) B"
+        bit="$(echo "scale=0;$1*8" | bc -l ) bps"
     elif [ "$1" -lt 100000 ]; then
-        bit="$(echo "scale=0;$1*8/1000" | bc -l ) K"
+        bit="$(echo "scale=0;$1*8/1000" | bc -l ) Kbps"
     else
-        bit="$(echo "scale=1;$1*8/1000000" | bc -l ) M"
+        bit="$(echo "scale=1;$1*8/1000000" | bc -l ) Mbps"
     fi
 
     echo "$bit"
@@ -54,8 +54,8 @@ while true; do
         bytes[past_tx_$interface]=${bytes[now_tx_$interface]}
     done
 
-    echo "D: $(print_bytes $down) / U: $(print_bytes $up)"
-    # echo "Download: $(print_bit $down) / Upload: $(print_bit $up)"
+    #echo "D: $(print_bytes $down) / U: $(print_bytes $up)"
+    echo "D: $(print_bit $down) / U: $(print_bit $up)"
 
     sleep $INTERVAL
 done
