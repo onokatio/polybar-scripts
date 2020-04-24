@@ -26,8 +26,8 @@ print_bit() {
     echo "$bit"
 }
 
-INTERVAL=10
-INTERFACES="enp0s25 wlp3s0"
+INTERVAL=1
+INTERFACES="wlp3s0 enp0s20f0u1u3"
 
 declare -A bytes
 
@@ -54,7 +54,7 @@ while true; do
         bytes[past_tx_$interface]=${bytes[now_tx_$interface]}
     done
 
-    echo "Download: $(print_bytes $down) / Upload: $(print_bytes $up)"
+    echo "D: $(print_bytes $down) / U: $(print_bytes $up)"
     # echo "Download: $(print_bit $down) / Upload: $(print_bit $up)"
 
     sleep $INTERVAL
