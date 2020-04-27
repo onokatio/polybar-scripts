@@ -27,7 +27,14 @@ print_bit() {
 }
 
 INTERVAL=1
-INTERFACES="wlp3s0 enp0s20f0u1u3"
+DEFAULT_INTERFACES="wlp3s0 enp0s20f0u1u3"
+declare -a INTERFACES;
+
+for interface in $DEFAULT_INTERFACES;do
+	if test -d /sys/class/net/"$interface"/ ;then
+		INTERFACES+=( "$interface" )
+	fi
+done
 
 declare -A bytes
 
