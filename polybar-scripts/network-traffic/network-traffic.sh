@@ -16,22 +16,29 @@ print_bit() {
     if [ "$1" -eq 0 ] || [ "$1" -lt 10 ]; then
         bit="0 B"
     elif [ "$1" -lt 100 ]; then
-        bit="$(echo "scale=0;$1*8" | bc -l ) B"
+        bit="$(echo "scale=0;$1*8" | bc -l )bps"
     elif [ "$1" -lt 100000 ]; then
-        bit="$(echo "scale=0;$1*8/1000" | bc -l ) K"
+        bit="$(echo "scale=0;$1*8/1000" | bc -l )Kbps"
     else
-        bit="$(echo "scale=1;$1*8/1000000" | bc -l ) M"
+        bit="$(echo "scale=1;$1*8/1000000" | bc -l )Mbps"
     fi
 
     echo "$bit"
 }
 
-INTERVAL=10
-INTERFACES="enp0s25 wlp3s0"
+INTERVAL=1
+declare -a DEFAULT_INTERFACES=("wlp3s0" "enp0s20f0u1u3")
+declare -a INTERFACES;
+
+for interface in ${DEFAULT_INTERFACES[@]};do
+	if test -d /sys/class/net/"$interface"/ ;then
+		INTERFACES+=( "$interface" )
+	fi
+done
 
 declare -A bytes
 
-for interface in $INTERFACES; do
+for interface in ${INTERFACES[@]}; do
     bytes[past_rx_$interface]="$(cat /sys/class/net/"$interface"/statistics/rx_bytes)"
     bytes[past_tx_$interface]="$(cat /sys/class/net/"$interface"/statistics/tx_bytes)"
 done
@@ -40,7 +47,7 @@ while true; do
     down=0
     up=0
 
-    for interface in $INTERFACES; do
+    for interface in ${INTERFACES[@]}; do
         bytes[now_rx_$interface]="$(cat /sys/class/net/"$interface"/statistics/rx_bytes)"
         bytes[now_tx_$interface]="$(cat /sys/class/net/"$interface"/statistics/tx_bytes)"
 
@@ -52,10 +59,12 @@ while true; do
 
         bytes[past_rx_$interface]=${bytes[now_rx_$interface]}
         bytes[past_tx_$interface]=${bytes[now_tx_$interface]}
+
+	echo -n "$interface  $(print_bit $down)/ $(print_bit $up) "
     done
 
-    echo "Download: $(print_bytes $down) / Upload: $(print_bytes $up)"
-    # echo "Download: $(print_bit $down) / Upload: $(print_bit $up)"
+    #echo "D: $(print_bytes $down) / U: $(print_bytes $up)"
+    echo ''
 
     sleep $INTERVAL
 done
